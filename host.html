@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Caixa</title>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#222;--muted:#777;--accent:#e8590c;--ok:#2b8a3e;--blue:#1c7ed6;--danger:#c92a2a;--line:#e3ddd0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  -webkit-user-select:none;user-select:none;touch-action:manipulation}
+input,textarea{-webkit-user-select:text;user-select:text;font:inherit}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;color:#fff;background:#555}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.4}
+
+header{display:flex;align-items:center;gap:8px;background:#2b2b2b;padding:8px 10px;height:60px}
+.aba{flex:1;max-width:220px;height:44px;background:#444;font-size:18px;font-weight:600}
+.aba.ativa{background:var(--accent)}
+.aba .n{background:#fff;color:#222;border-radius:20px;padding:1px 9px;margin-left:6px;font-size:15px}
+#conexao{margin-left:auto;color:#fff;font-size:14px;display:flex;align-items:center;gap:6px}
+#ponto{width:12px;height:12px;border-radius:50%;background:#e03131}
+#ponto.on{background:#40c057}
+
+.tela{display:none;height:calc(100% - 60px)}
+.tela.ativa{display:block}
+
+/* ---- caixa ---- */
+#tela-caixa.ativa{display:grid;grid-template-columns:1fr 400px;gap:12px;padding:12px}
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;align-content:start;overflow:auto}
+.prod{background:var(--card);color:var(--ink);border:2px solid var(--line);min-height:100px;padding:10px 6px;
+  font-size:22px;font-weight:700;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px}
+.prod small{font-size:20px;color:var(--accent);font-weight:700}
+.painel{background:var(--card);border-radius:16px;border:2px solid var(--line);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+#bannerEdicao{display:none;background:#fff3bf;padding:8px 12px;align-items:center;justify-content:space-between;font-weight:700}
+#bannerEdicao button{background:#868e96;padding:8px 12px}
+#linhas{flex:1;overflow:auto;padding:8px 12px;min-height:80px}
+.vazio{color:var(--muted);text-align:center;padding:24px 8px;font-size:18px}
+.linha{border-bottom:1px solid var(--line);padding:8px 0}
+.l1{display:flex;justify-content:space-between;font-size:20px}
+.l2{display:flex;align-items:center;gap:8px;margin-top:6px}
+.qb{width:46px;height:46px;font-size:26px;font-weight:700;background:#495057}
+.q{min-width:34px;text-align:center;font-size:22px;font-weight:700}
+.un{color:var(--muted);font-size:15px}
+.obsb{margin-left:auto;background:#e9ecef;color:#333;height:46px;padding:0 12px;font-size:16px}
+.obsi{margin-top:4px;color:#a61e4d;font-size:16px}
+.rodape{padding:10px 12px;border-top:2px solid var(--line);background:#faf8f3}
+#obsPedido{width:100%;height:56px;border:2px solid var(--line);border-radius:10px;padding:8px;font-size:17px;resize:none}
+.tot{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0}
+.tot span{font-size:20px}
+#total{font-size:40px;font-weight:800;color:var(--ok)}
+.fila{display:flex;gap:8px}
+#btnConfirmar{flex:1;height:64px;font-size:22px;font-weight:800;background:var(--ok)}
+#btnLimpar{height:64px;padding:0 16px;font-size:17px;background:#868e96}
+
+/* ---- pedidos ---- */
+#tela-pedidos.ativa{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+.col{background:#ebe6da;border-radius:16px;padding:10px;overflow:auto}
+.col h2{margin:0 0 10px;font-size:22px}
+.col.proc h2{color:#d9480f}.col.pron h2{color:var(--ok)}
+.card{background:var(--card);border-radius:14px;padding:12px;margin-bottom:10px;border-left:8px solid #f59f00}
+.col.pron .card{border-left-color:var(--ok)}
+.cab{display:flex;justify-content:space-between;align-items:baseline}
+.num{font-size:30px;font-weight:800}
+.hora{color:var(--muted)}
+.card ul{margin:6px 0;padding-left:20px;font-size:19px}
+.card li em{color:#a61e4d}
+.obsp{background:#fff3bf;border-radius:8px;padding:6px 8px;margin:6px 0;font-size:17px}
+.valor{font-size:22px;font-weight:800;margin:6px 0}
+.acoes{display:flex;gap:6px;flex-wrap:wrap}
+.b{height:52px;padding:0 14px;font-size:17px;font-weight:700}
+.b.ok{background:var(--ok);flex:1}
+.b.entrega{background:var(--blue);flex:1}
+.b.ruim{background:var(--danger)}
+
+/* ---- cardapio ---- */
+#tela-cardapio.ativa{display:block;overflow:auto;padding:12px}
+.caixaed{max-width:720px;margin:0 auto}
+.bloco{background:var(--card);border-radius:14px;padding:12px;margin-bottom:12px;border:2px solid var(--line)}
+.bloco h2{margin:0 0 8px;font-size:20px}
+.ed{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.ed input{height:50px;border:2px solid var(--line);border-radius:10px;padding:0 10px;font-size:19px;min-width:0}
+.ed .edn{flex:1}.ed .edp{width:120px;text-align:right}
+.ed .pre{font-size:19px;color:var(--muted)}
+.dica{color:var(--muted);font-size:15px;margin:0 0 8px}
+.resumo{font-size:19px;line-height:1.7}
+
+#aviso{position:fixed;left:50%;top:76px;transform:translateX(-50%);background:#2b8a3e;color:#fff;padding:16px 26px;border-radius:14px;
+  font-size:26px;font-weight:800;box-shadow:0 6px 20px rgba(0,0,0,.3);display:none;z-index:10;text-align:center;white-space:pre-line}
+
+@media (max-width:820px){
+  #tela-caixa.ativa{grid-template-columns:1fr;overflow:auto;height:auto}
+  #tela-pedidos.ativa{grid-template-columns:1fr;overflow:auto;height:auto}
+}
+</style>
+</head>
+<body>
+<header>
+  <button class="aba ativa" id="aba-caixa" onclick="abrirTela('caixa')">Caixa</button>
+  <button class="aba" id="aba-pedidos" onclick="abrirTela('pedidos')">Pedidos<span class="n" id="contador">0</span></button>
+  <button class="aba" id="aba-cardapio" onclick="abrirTela('cardapio')">Cardápio</button>
+  <div id="conexao"><span id="ponto"></span><span id="txtConexao">conectando...</span></div>
+</header>
+
+<div id="aviso"></div>
+
+<!-- CAIXA -->
+<section class="tela ativa" id="tela-caixa">
+  <div class="menu" id="menu"></div>
+  <div class="painel">
+    <div id="bannerEdicao"><span id="txtEdicao"></span><button onclick="cancelarEdicao()">Cancelar edição</button></div>
+    <div id="linhas"></div>
+    <div class="rodape">
+      <textarea id="obsPedido" placeholder="Observação do pedido (ex: tudo sem sal)"></textarea>
+      <div class="tot"><span>Total a pagar</span><div id="total">R$ 0,00</div></div>
+      <div class="fila">
+        <button id="btnLimpar" onclick="limparCarrinho(true)">Limpar</button>
+        <button id="btnConfirmar" onclick="confirmar()">Confirmar pedido</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PEDIDOS -->
+<section class="tela" id="tela-pedidos">
+  <div class="col proc"><h2>Processando (<span id="nProc">0</span>)</h2><div id="colProc"></div></div>
+  <div class="col pron"><h2>Pronto (<span id="nPron">0</span>)</h2><div id="colPron"></div></div>
+</section>
+
+<!-- CARDÁPIO -->
+<section class="tela" id="tela-cardapio">
+  <div class="caixaed">
+    <div class="bloco">
+      <h2>Produtos e preços</h2>
+      <p class="dica">Mudou aqui, muda em todos os caixas. Pedidos já feitos mantêm o preço da hora em que foram feitos.</p>
+      <div id="listaEd"></div>
+    </div>
+    <div class="bloco">
+      <h2>Adicionar produto</h2>
+      <div class="ed">
+        <input class="edn" id="novoNome" placeholder="Nome do produto">
+        <span class="pre">R$</span>
+        <input class="edp" id="novoPreco" inputmode="decimal" placeholder="0,00">
+        <button class="b ok" style="flex:none" onclick="adicionarProduto()">+ Adicionar</button>
+      </div>
+    </div>
+    <div class="bloco">
+      <h2>Resumo</h2>
+      <div class="resumo" id="resumo"></div>
+      <button class="b ruim" style="margin-top:10px" onclick="reiniciarDia()">Novo dia: apagar todos os pedidos</button>
+    </div>
+  </div>
+</section>
+
+<script>
+var estado = { cardapio: [], pedidos: [] };
+var carrinho = [];   // {nome, preco, qtd, obs}
+var editando = null; // número do pedido em edição
+var PIN = '';        // senha do caixa (guardada neste aparelho)
+try { PIN = localStorage.getItem('pin') || ''; } catch (e) {}
+var perguntouRestaurar = false;
+
+function $(id) { return document.getElementById(id); }
+function brl(v) { return 'R$ ' + (Math.round(v * 100) / 100).toFixed(2).replace('.', ','); }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function somaItens(itens) {
+  return Math.round(itens.reduce(function (a, i) { return a + i.preco * i.qtd; }, 0) * 100) / 100;
+}
+
+/* ---------- comunicação ---------- */
+function api(metodo, url, corpo) {
+  return fetch(url, {
+    method: metodo,
+    headers: { 'Content-Type': 'application/json', 'x-pin': PIN },
+    body: corpo !== undefined ? JSON.stringify(corpo) : undefined
+  }).then(function (r) {
+    if (r.status === 401) {
+      try { localStorage.removeItem('pin'); } catch (e) {}
+      alert('Senha incorreta ou alterada. A página vai recarregar.');
+      location.reload();
+    }
+    return r.json().catch(function () { return {}; }).then(function (d) {
+      if (!r.ok) throw new Error(d.erro || ('Erro ' + r.status));
+      return d;
+    });
+  });
+}
+
+/* guarda uma cópia dos dados neste aparelho; se o servidor na nuvem reiniciar vazio, dá para restaurar */
+function guardarBackup() {
+  if (!(estado.mudancas > 0)) return;
+  try {
+    localStorage.setItem('backup', JSON.stringify({
+      cardapio: estado.cardapio, pedidos: estado.pedidos, proximoPedido: estado.proximoPedido
+    }));
+  } catch (e) {}
+}
+
+function verificarBackup() {
+  var b = null;
+  try { b = JSON.parse(localStorage.getItem('backup') || 'null'); } catch (e) {}
+  if (!b || !b.pedidos || !b.cardapio) return;
+  if (confirm('O servidor reiniciou e perdeu os dados. Restaurar os pedidos e o cardápio guardados neste aparelho?')) {
+    api('POST', '/api/restaurar', { cardapio: b.cardapio, pedidos: b.pedidos, proximoPedido: b.proximoPedido })
+      .then(atualizarAgora)
+      .catch(function (e) { alert(e.message); });
+  } else {
+    try { localStorage.removeItem('backup'); } catch (e) {}
+  }
+}
+
+function receber(d) {
+  if (!d || d.publico) return;
+  estado = d;
+  renderTudo();
+  guardarBackup();
+  if (estado.mudancas === 0) {
+    if (!perguntouRestaurar) { perguntouRestaurar = true; verificarBackup(); }
+  } else {
+    perguntouRestaurar = false;
+  }
+}
+
+function atualizarAgora() {
+  return fetch('/api/estado', { headers: { 'x-pin': PIN } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(receber)
+    .catch(function () {});
+}
+
+function setOnline(on) {
+  $('ponto').className = on ? 'on' : '';
+  $('txtConexao').textContent = on ? 'conectado' : 'sem conexão';
+}
+
+function conectar() {
+  var es = new EventSource('/eventos?pin=' + encodeURIComponent(PIN));
+  es.onopen = function () { setOnline(true); };
+  es.onmessage = function (e) { receber(JSON.parse(e.data)); };
+  es.onerror = function () { setOnline(false); };
+}
+
+/* ---------- abas ---------- */
+function abrirTela(nome) {
+  ['caixa', 'pedidos', 'cardapio'].forEach(function (t) {
+    $('tela-' + t).classList.toggle('ativa', t === nome);
+    $('aba-' + t).classList.toggle('ativa', t === nome);
+  });
+  if (nome === 'cardapio') { renderEditor(); renderResumo(); }
+}
+
+var timerAviso = null;
+function aviso(txt) {
+  var el = $('aviso');
+  el.textContent = txt; el.style.display = 'block';
+  clearTimeout(timerAviso);
+  timerAviso = setTimeout(function () { el.style.display = 'none'; }, 5000);
+}
+
+/* ---------- caixa ---------- */
+function renderMenu() {
+  $('menu').innerHTML = estado.cardapio.map(function (p) {
+    return '<button class="prod" onclick="addProduto(' + p.id + ')"><span>' + esc(p.nome) + '</span><small>' + brl(p.preco) + '</small></button>';
+  }).join('') || '<div class="vazio">Cardápio vazio. Cadastre na aba Cardápio.</div>';
+}
+
+function addProduto(id) {
+  var p = estado.cardapio.find(function (x) { return x.id === id; });
+  if (!p) return;
+  var ex = carrinho.find(function (i) { return i.nome === p.nome && i.preco === p.preco && !i.obs; });
+  if (ex) { if (ex.qtd < 99) ex.qtd++; } else carrinho.push({ nome: p.nome, preco: p.preco, qtd: 1, obs: '' });
+  renderCarrinho();
+}
+
+function mudarQtd(idx, d) {
+  var i = carrinho[idx]; if (!i) return;
+  i.qtd += d;
+  if (i.qtd <= 0) carrinho.splice(idx, 1);
+  else if (i.qtd > 99) i.qtd = 99;
+  renderCarrinho();
+}
+
+function obsItem(idx) {
+  var i = carrinho[idx]; if (!i) return;
+  var v = prompt('Observação para ' + i.nome + ' (ex: sem sal):', i.obs || '');
+  if (v === null) return;
+  i.obs = v.trim().slice(0, 80);
+  renderCarrinho();
+}
+
+function renderCarrinho() {
+  var el = $('linhas');
+  if (!carrinho.length) {
+    el.innerHTML = '<div class="vazio">Toque nos produtos para adicionar ao pedido</div>';
+  } else {
+    el.innerHTML = carrinho.map(function (i, idx) {
+      return '<div class="linha"><div class="l1"><b>' + esc(i.nome) + '</b><span>' + brl(i.preco * i.qtd) + '</span></div>' +
+        '<div class="l2"><button class="qb" onclick="mudarQtd(' + idx + ',-1)">−</button>' +
+        '<span class="q">' + i.qtd + '</span>' +
+        '<button class="qb" onclick="mudarQtd(' + idx + ',1)">+</button>' +
+        '<span class="un">' + brl(i.preco) + ' un.</span>' +
+        '<button class="obsb" onclick="obsItem(' + idx + ')">✎ obs</button></div>' +
+        (i.obs ? '<div class="obsi">📝 ' + esc(i.obs) + '</div>' : '') + '</div>';
+    }).join('');
+  }
+  $('total').textContent = brl(somaItens(carrinho));
+  $('btnConfirmar').textContent = editando ? 'Salvar alterações #' + editando : 'Confirmar pedido';
+  $('btnConfirmar').disabled = !carrinho.length;
+  $('bannerEdicao').style.display = editando ? 'flex' : 'none';
+  if (editando) $('txtEdicao').textContent = 'Editando pedido #' + editando;
+}
+
+function limparCarrinho(perguntar) {
+  if (perguntar && (carrinho.length || $('obsPedido').value) && !confirm('Limpar o pedido atual?')) return;
+  carrinho = []; editando = null; $('obsPedido').value = '';
+  renderCarrinho();
+}
+
+function cancelarEdicao() { limparCarrinho(false); }
+
+function confirmar() {
+  if (!carrinho.length) return;
+  var corpo = {
+    itens: carrinho.map(function (i) { return { nome: i.nome, preco: i.preco, qtd: i.qtd, obs: i.obs }; }),
+    obs: $('obsPedido').value
+  };
+  var total = somaItens(carrinho);
+  var req = editando
+    ? api('PUT', '/api/pedidos/' + editando, corpo).then(function (p) { aviso('Pedido #' + p.numero + ' atualizado\nTotal ' + brl(total)); })
+    : api('POST', '/api/pedidos', corpo).then(function (p) { aviso('Pedido #' + p.numero + ' criado\nTotal ' + brl(total)); });
+  req.then(function () { limparCarrinho(false); atualizarAgora(); })
+     .catch(function (e) { alert(e.message); atualizarAgora(); });
+}
+
+/* ---------- pedidos ---------- */
+function cartao(p) {
+  var hora = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  var itens = p.itens.map(function (i) {
+    return '<li><b>' + i.qtd + 'x</b> ' + esc(i.nome) + (i.obs ? ' <em>(' + esc(i.obs) + ')</em>' : '') + '</li>';
+  }).join('');
+  var botoes = p.status === 'processando'
+    ? '<button class="b ok" onclick="mudarStatus(' + p.numero + ',\'pronto\')">✔ Pronto</button>' +
+      '<button class="b" onclick="editar(' + p.numero + ')">✎ Editar</button>' +
+      '<button class="b ruim" onclick="excluir(' + p.numero + ')">🗑</button>'
+    : '<button class="b entrega" onclick="mudarStatus(' + p.numero + ',\'entregue\')">📦 Entregue</button>' +
+      '<button class="b" onclick="mudarStatus(' + p.numero + ',\'processando\')">↩ Voltar</button>' +
+      '<button class="b" onclick="editar(' + p.numero + ')">✎</button>' +
+      '<button class="b ruim" onclick="excluir(' + p.numero + ')">🗑</button>';
+  return '<div class="card"><div class="cab"><span class="num">#' + p.numero + '</span><span class="hora">' + hora + '</span></div>' +
+    '<ul>' + itens + '</ul>' +
+    (p.obs ? '<div class="obsp">📝 ' + esc(p.obs) + '</div>' : '') +
+    '<div class="valor">' + brl(somaItens(p.itens)) + '</div>' +
+    '<div class="acoes">' + botoes + '</div></div>';
+}
+
+function renderPedidos() {
+  var ativos = estado.pedidos.filter(function (p) { return p.status !== 'entregue'; })
+    .sort(function (a, b) { return a.numero - b.numero; });
+  var proc = ativos.filter(function (p) { return p.status === 'processando'; });
+  var pron = ativos.filter(function (p) { return p.status === 'pronto'; });
+  $('colProc').innerHTML = proc.map(cartao).join('') || '<div class="vazio">Nenhum pedido</div>';
+  $('colPron').innerHTML = pron.map(cartao).join('') || '<div class="vazio">Nenhum pedido</div>';
+  $('nProc').textContent = proc.length;
+  $('nPron').textContent = pron.length;
+  $('contador').textContent = ativos.length;
+}
+
+function mudarStatus(n, st) {
+  api('POST', '/api/pedidos/' + n + '/status', { status: st })
+    .then(atualizarAgora)
+    .catch(function (e) { alert(e.message); atualizarAgora(); });
+}
+
+function excluir(n) {
+  if (!confirm('Excluir o pedido #' + n + '?')) return;
+  api('DELETE', '/api/pedidos/' + n)
+    .then(function () { if (editando === n) limparCarrinho(false); atualizarAgora(); })
+    .catch(function (e) { alert(e.message); atualizarAgora(); });
+}
+
+function editar(n) {
+  var p = estado.pedidos.find(function (x) { return x.numero === n; });
+  if (!p) return;
+  carrinho = p.itens.map(function (i) { return { nome: i.nome, preco: i.preco, qtd: i.qtd, obs: i.obs || '' }; });
+  $('obsPedido').value = p.obs || '';
+  editando = n;
+  renderCarrinho();
+  abrirTela('caixa');
+}
+
+/* ---------- cardápio ---------- */
+function renderEditor() {
+  $('listaEd').innerHTML = estado.cardapio.map(function (p) {
+    return '<div class="ed"><input class="edn" value="' + esc(p.nome) + '" onchange="salvarProduto(' + p.id + ',this.parentNode)">' +
+      '<span class="pre">R$</span>' +
+      '<input class="edp" inputmode="decimal" value="' + p.preco.toFixed(2).replace('.', ',') + '" onchange="salvarProduto(' + p.id + ',this.parentNode)">' +
+      '<button class="b ruim" onclick="removerProduto(' + p.id + ')">🗑</button></div>';
+  }).join('') || '<div class="vazio">Nenhum produto</div>';
+}
+
+function lerPreco(txt) { return parseFloat(String(txt).replace(',', '.')); }
+
+function enviarCardapio(lista) {
+  return api('PUT', '/api/cardapio', lista).then(atualizarAgora).catch(function (e) { alert(e.message); renderEditor(); });
+}
+
+function salvarProduto(id, linha) {
+  var nome = linha.querySelector('.edn').value.trim();
+  var preco = lerPreco(linha.querySelector('.edp').value);
+  if (!nome || !isFinite(preco) || preco < 0) { alert('Nome ou preço inválido'); renderEditor(); return; }
+  enviarCardapio(estado.cardapio.map(function (p) { return p.id === id ? { id: id, nome: nome, preco: preco } : p; }));
+}
+
+function removerProduto(id) {
+  var p = estado.cardapio.find(function (x) { return x.id === id; });
+  if (!p || !confirm('Remover "' + p.nome + '" do cardápio?')) return;
+  enviarCardapio(estado.cardapio.filter(function (x) { return x.id !== id; }));
+}
+
+function adicionarProduto() {
+  var nome = $('novoNome').value.trim();
+  var preco = lerPreco($('novoPreco').value);
+  if (!nome || !isFinite(preco) || preco < 0) { alert('Preencha o nome e o preço (ex: 3,50)'); return; }
+  enviarCardapio(estado.cardapio.concat([{ id: null, nome: nome, preco: preco }])).then(function () {
+    $('novoNome').value = ''; $('novoPreco').value = '';
+  });
+}
+
+function renderResumo() {
+  var todos = estado.pedidos;
+  var entregues = todos.filter(function (p) { return p.status === 'entregue'; }).length;
+  var total = todos.reduce(function (a, p) { return a + somaItens(p.itens); }, 0);
+  $('resumo').innerHTML = 'Pedidos feitos: <b>' + todos.length + '</b> (entregues: ' + entregues + ')<br>' +
+    'Total em pedidos: <b>' + brl(total) + '</b>';
+}
+
+function reiniciarDia() {
+  if (!confirm('Apagar TODOS os pedidos e voltar a numeração para 100?')) return;
+  if (!confirm('Tem certeza? Isso não pode ser desfeito.')) return;
+  api('POST', '/api/reiniciar', {}).then(function () { limparCarrinho(false); atualizarAgora(); })
+    .catch(function (e) { alert(e.message); });
+}
+
+/* ---------- geral ---------- */
+function renderTudo() {
+  renderMenu();
+  renderPedidos();
+  renderResumo();
+  var ativo = document.activeElement;
+  var editandoCardapio = ativo && ativo.tagName === 'INPUT' && ativo.closest('#tela-cardapio');
+  if (!editandoCardapio) renderEditor();
+}
+
+/* abre o caixa: pede a senha se o servidor exigir */
+function iniciar() {
+  fetch('/api/estado', { headers: { 'x-pin': PIN } }).then(function (r) {
+    if (r.status === 401) {
+      var v = prompt('Digite a senha do caixa:');
+      if (v === null) {
+        document.body.innerHTML = '<p style="padding:30px;font-size:22px">Senha necessária. Recarregue a página.</p>';
+        return;
+      }
+      PIN = v.trim();
+      try { localStorage.setItem('pin', PIN); } catch (e) {}
+      return iniciar();
+    }
+    if (r.status === 429) {
+      document.body.innerHTML = '<p style="padding:30px;font-size:22px">Muitas tentativas erradas. Espere 5 minutos e recarregue.</p>';
+      return;
+    }
+    return r.json().then(function (d) { receber(d); conectar(); });
+  }).catch(function () { setTimeout(iniciar, 3000); });
+}
+
+renderCarrinho();
+iniciar();
+/* um pedido leve a cada 4 min evita que o servidor gratuito da nuvem "durma" */
+setInterval(function () { fetch('/saude').catch(function () {}); }, 240000);
+</script>
+</body>
+</html>
