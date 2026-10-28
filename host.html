@@ -12,7 +12,6 @@ body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background
   -webkit-user-select:none;user-select:none;touch-action:manipulation}
 input,textarea{-webkit-user-select:text;user-select:text;font:inherit}
 button{font:inherit;cursor:pointer;border:0;border-radius:12px;color:#fff;background:#555}
-button:active{transform:scale(.97)}
 button:disabled{opacity:.4}
 
 header{display:flex;align-items:center;gap:8px;background:#2b2b2b;padding:8px 10px;height:var(--hh,60px)}
@@ -53,7 +52,6 @@ body.tc #conexao{color:#e5e5e7}
 .prod .pf{display:flex;align-items:center;justify-content:space-between}
 .prod small{font-size:20px;color:#ff8a2a;font-weight:700}
 .prod .mais{width:34px;height:34px;border-radius:9px;background:#2d2d30;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;color:#fff}
-.prod:active .mais{background:#ff8a2a}
 .painel{background:#141415;border-radius:20px;border:1px solid #232326;display:flex;flex-direction:column;overflow:hidden;min-height:0;color:#f2f2f2}
 .ptit{display:flex;align-items:center;gap:16px;margin:22px 24px 0;padding-bottom:16px;border-bottom:1px solid #242427}
 .ptit svg{width:40px;height:40px;fill:none;stroke:#ff8a2a;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -90,25 +88,8 @@ body.tc #conexao{color:#e5e5e7}
 #btnLimpar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 
-/* ---- juice ---- */
-.prod{transition:transform .12s,border-color .15s}
 .prod:hover{border-color:#4a3118}
-.prod:active{transform:scale(.93)}
-.prod .mais{transition:transform .18s,background .15s}
-.prod:active .mais{transform:rotate(90deg) scale(1.25)}
-.linha.novo{animation:entra .3s cubic-bezier(.2,1.5,.4,1)}
-.linha.novo .q{display:inline-block;animation:pulo .35s}
-@keyframes entra{from{opacity:0;transform:translateX(28px) scale(.96)}to{opacity:1;transform:none}}
-@keyframes pulo{40%{transform:scale(1.7);color:#ff8a2a}}
 #total{display:inline-block;transform-origin:right center}
-#total.bump{animation:bump .38s}
-@keyframes bump{30%{transform:scale(1.28);text-shadow:0 0 20px rgba(47,191,113,.75)}}
-#btnConfirmar:not(:disabled){animation:brilho 2.2s ease-in-out infinite}
-@keyframes brilho{0%,100%{box-shadow:0 0 0 0 rgba(255,138,42,0)}50%{box-shadow:0 0 24px 2px rgba(255,138,42,.45)}}
-#aviso.pop{animation:avisoPop .5s cubic-bezier(.2,1.6,.4,1)}
-@keyframes avisoPop{from{opacity:0;transform:translateX(-50%) translateY(-20px) scale(.7)}to{opacity:1;transform:translateX(-50%)}}
-.fx{position:fixed;pointer-events:none;z-index:50;left:0;top:0;font-weight:800;will-change:transform,opacity}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ---- pedidos ---- */
 #tela-pedidos.ativa{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px 28px 24px}
@@ -328,7 +309,6 @@ var timerAviso = null;
 function aviso(txt) {
   var el = $('aviso');
   el.textContent = txt; el.style.display = 'block';
-  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
   clearTimeout(timerAviso);
   timerAviso = setTimeout(function () { el.style.display = 'none'; }, 5000);
 }
@@ -343,48 +323,6 @@ function renderMenu() {
 }
 
 var ultimoIdx = -1, totalAnt = 0;
-var reduzMov = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-/* partículas: voam do ponto (x,y) e somem */
-function estouro(x, y, n, cores, dist) {
-  if (reduzMov) return;
-  for (var k = 0; k < n; k++) {
-    var d = document.createElement('div');
-    var tam = 6 + Math.random() * 6;
-    d.className = 'fx';
-    d.style.cssText = 'width:' + tam + 'px;height:' + tam + 'px;border-radius:' + (Math.random() < .5 ? '50%' : '2px') +
-      ';background:' + cores[k % cores.length];
-    document.body.appendChild(d);
-    var a = Math.random() * Math.PI * 2, r = dist * (.5 + Math.random() * .7);
-    var dx = Math.cos(a) * r, dy = Math.sin(a) * r - dist * .4;
-    var an = d.animate([
-      { transform: 'translate(' + x + 'px,' + y + 'px) rotate(0)', opacity: 1 },
-      { transform: 'translate(' + (x + dx) + 'px,' + (y + dy + 40) + 'px) rotate(' + (Math.random() * 540 - 270) + 'deg)', opacity: 0 }
-    ], { duration: 550 + Math.random() * 350, easing: 'cubic-bezier(.1,.7,.3,1)' });
-    an.onfinish = (function (el) { return function () { el.remove(); }; })(d);
-  }
-}
-
-/* texto que sobe e some (ex: +1) */
-function flutua(x, y, txt, cor) {
-  if (reduzMov) return;
-  var d = document.createElement('div');
-  d.className = 'fx';
-  d.textContent = txt;
-  d.style.cssText = 'font-size:26px;color:' + cor + ';text-shadow:0 2px 8px rgba(0,0,0,.6)';
-  document.body.appendChild(d);
-  var an = d.animate([
-    { transform: 'translate(' + (x - 12) + 'px,' + y + 'px) scale(.6)', opacity: 0 },
-    { transform: 'translate(' + (x - 12) + 'px,' + (y - 30) + 'px) scale(1.2)', opacity: 1, offset: .25 },
-    { transform: 'translate(' + (x - 12) + 'px,' + (y - 80) + 'px) scale(1)', opacity: 0 }
-  ], { duration: 750, easing: 'ease-out' });
-  an.onfinish = function () { d.remove(); };
-}
-
-function centro(el) {
-  var r = el.getBoundingClientRect();
-  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-}
 
 function addProduto(id, ev) {
   var p = estado.cardapio.find(function (x) { return x.id === id; });
@@ -393,11 +331,6 @@ function addProduto(id, ev) {
   if (ex) { if (ex.qtd < 99) ex.qtd++; } else carrinho.push({ nome: p.nome, preco: p.preco, qtd: 1, obs: '' });
   ultimoIdx = carrinho.indexOf(ex || carrinho[carrinho.length - 1]);
   renderCarrinho();
-  if (ev && ev.currentTarget) {
-    var c = centro(ev.currentTarget);
-    estouro(c.x, c.y, 8, ['#ff8a2a', '#ffb066', '#ffd9b0'], 70);
-    flutua(c.x, c.y - 10, '+1', '#ff8a2a');
-  }
 }
 
 function mudarQtd(idx, d) {
@@ -434,9 +367,6 @@ function renderCarrinho() {
   ultimoIdx = -1;
   var tt = somaItens(carrinho);
   $('total').textContent = brl(tt);
-  if (tt !== totalAnt && tt > 0) {
-    $('total').classList.remove('bump'); void $('total').offsetWidth; $('total').classList.add('bump');
-  }
   totalAnt = tt;
   $('btnConfirmar').innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' + (editando ? 'Salvar alterações' : 'Confirmar pedido');
   $('btnConfirmar').disabled = !carrinho.length;
@@ -466,8 +396,6 @@ function confirmar() {
     ? api('PUT', '/api/pedidos/' + editando, corpo).then(function (p) { aviso('Pedido de ' + p.nome + ' atualizado\nTotal ' + brl(total)); })
     : api('POST', '/api/pedidos', corpo).then(function (p) { aviso('Pedido de ' + p.nome + ' criado\nTotal ' + brl(total)); });
   req.then(function () {
-       var c = centro($('btnConfirmar'));
-       estouro(c.x, c.y, 36, ['#ff8a2a', '#2fbf71', '#ffd43b', '#4dabf7', '#f783ac'], 190);
        limparCarrinho(false); atualizarAgora();
      })
      .catch(function (e) { alert(e.message); atualizarAgora(); });
