@@ -54,7 +54,7 @@ function visaoPublica() {
     publico: true,
     pedidos: estado.pedidos
       .filter(function (p) { return p.status !== 'entregue'; })
-      .map(function (p) { return { numero: p.numero, status: p.status }; })
+      .map(function (p) { return { numero: p.numero, nome: p.nome, status: p.status }; })
   };
 }
 
@@ -88,6 +88,11 @@ function limparItens(itens) {
   });
 }
 
+function limparNome(nome) {
+  const n = String(nome || '').trim().slice(0, 30);
+  if (!n) throw new Error('Digite o nome da pessoa');
+  return n;
+}
 function limparObs(obs) { return String(obs || '').trim().slice(0, 200); }
 
 function limparCardapio(lista) {
@@ -218,6 +223,7 @@ const servidor = http.createServer(async function (req, res) {
       const itens = limparItens(corpo.itens);
       const pedido = {
         numero: estado.proximoPedido++,
+        nome: limparNome(corpo.nome),
         itens: itens,
         obs: limparObs(corpo.obs),
         status: 'processando',
@@ -255,6 +261,7 @@ const servidor = http.createServer(async function (req, res) {
         if (!(numero > 0) || STATUS_VALIDOS.indexOf(x.status) === -1) throw new Error('Pedido inválido no backup');
         return {
           numero: numero,
+          nome: String(x.nome || '').trim().slice(0, 30) || ('Pedido ' + numero),
           itens: limparItens(x.itens),
           obs: limparObs(x.obs),
           status: x.status,
@@ -288,6 +295,7 @@ const servidor = http.createServer(async function (req, res) {
       if (m === 'PUT' && !mt[2]) {
         const corpo = await lerCorpo(req);
         if (pedido.status === 'entregue') throw new Error('Pedido já foi entregue, não dá para editar');
+        pedido.nome = limparNome(corpo.nome);
         pedido.itens = limparItens(corpo.itens);
         pedido.obs = limparObs(corpo.obs);
         pedido.atualizadoEm = Date.now();

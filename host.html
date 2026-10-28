@@ -178,6 +178,7 @@ body.tc #conexao{color:#e5e5e7}
   <div class="painel">
     <div class="ptit"><svg viewBox="0 0 24 24"><path d="M3 4h2.5l2.2 10.5h10.3L20 8H6.2"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg><h2>Pedido atual</h2></div>
     <div id="bannerEdicao"><span id="txtEdicao"></span><button onclick="cancelarEdicao()">Cancelar edição</button></div>
+    <input id="nomePessoa" maxlength="30" placeholder="Nome da pessoa" autocomplete="off" style="width:100%;padding:12px;font-size:18px;font-weight:700;border-radius:10px;border:2px solid #ccc;margin:0 0 8px;box-sizing:border-box">
     <div id="linhas"></div>
     <div class="rodape">
       <div class="obsl"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Observação do pedido <span>(ex: tudo sem sal)</span></div>
@@ -437,15 +438,15 @@ function renderCarrinho() {
     $('total').classList.remove('bump'); void $('total').offsetWidth; $('total').classList.add('bump');
   }
   totalAnt = tt;
-  $('btnConfirmar').innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' + (editando ? 'Salvar alterações #' + editando : 'Confirmar pedido');
+  $('btnConfirmar').innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' + (editando ? 'Salvar alterações' : 'Confirmar pedido');
   $('btnConfirmar').disabled = !carrinho.length;
   $('bannerEdicao').style.display = editando ? 'flex' : 'none';
-  if (editando) $('txtEdicao').textContent = 'Editando pedido #' + editando;
+  if (editando) $('txtEdicao').textContent = 'Editando pedido de ' + ((estado.pedidos.find(function (x) { return x.numero === editando; }) || {}).nome || '');
 }
 
 function limparCarrinho(perguntar) {
   if (perguntar && (carrinho.length || $('obsPedido').value) && !confirm('Limpar o pedido atual?')) return;
-  carrinho = []; editando = null; $('obsPedido').value = '';
+  carrinho = []; editando = null; $('obsPedido').value = ''; $('nomePessoa').value = '';
   renderCarrinho();
 }
 
@@ -453,14 +454,17 @@ function cancelarEdicao() { limparCarrinho(false); }
 
 function confirmar() {
   if (!carrinho.length) return;
+  var nome = $('nomePessoa').value.trim();
+  if (!nome) { alert('Digite o nome da pessoa'); $('nomePessoa').focus(); return; }
   var corpo = {
+    nome: nome,
     itens: carrinho.map(function (i) { return { nome: i.nome, preco: i.preco, qtd: i.qtd, obs: i.obs }; }),
     obs: $('obsPedido').value
   };
   var total = somaItens(carrinho);
   var req = editando
-    ? api('PUT', '/api/pedidos/' + editando, corpo).then(function (p) { aviso('Pedido #' + p.numero + ' atualizado\nTotal ' + brl(total)); })
-    : api('POST', '/api/pedidos', corpo).then(function (p) { aviso('Pedido #' + p.numero + ' criado\nTotal ' + brl(total)); });
+    ? api('PUT', '/api/pedidos/' + editando, corpo).then(function (p) { aviso('Pedido de ' + p.nome + ' atualizado\nTotal ' + brl(total)); })
+    : api('POST', '/api/pedidos', corpo).then(function (p) { aviso('Pedido de ' + p.nome + ' criado\nTotal ' + brl(total)); });
   req.then(function () {
        var c = centro($('btnConfirmar'));
        estouro(c.x, c.y, 36, ['#ff8a2a', '#2fbf71', '#ffd43b', '#4dabf7', '#f783ac'], 190);
@@ -483,7 +487,7 @@ function cartao(p) {
       '<button class="b" onclick="mudarStatus(' + p.numero + ',\'processando\')">↩ Voltar</button>' +
       '<button class="b" onclick="editar(' + p.numero + ')">✎</button>' +
       '<button class="b ruim" onclick="excluir(' + p.numero + ')">🗑</button>';
-  return '<div class="card"><div class="cab"><span class="num">#' + p.numero + '</span><span class="hora">' + hora + '</span></div>' +
+  return '<div class="card"><div class="cab"><span class="num">' + esc(p.nome || '#' + p.numero) + '</span><span class="hora">' + hora + '</span></div>' +
     '<ul>' + itens + '</ul>' +
     (p.obs ? '<div class="obsp">📝 ' + esc(p.obs) + '</div>' : '') +
     '<div class="valor">' + brl(somaItens(p.itens)) + '</div>' +
@@ -520,6 +524,7 @@ function editar(n) {
   if (!p) return;
   carrinho = p.itens.map(function (i) { return { nome: i.nome, preco: i.preco, qtd: i.qtd, obs: i.obs || '' }; });
   $('obsPedido').value = p.obs || '';
+  $('nomePessoa').value = p.nome || '';
   editando = n;
   renderCarrinho();
   abrirTela('caixa');
