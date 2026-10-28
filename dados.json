@@ -1,0 +1,37 @@
+{
+  "proximoPedido": 101,
+  "cardapio": [
+    {
+      "id": 1,
+      "nome": "Pipoca",
+      "preco": 3
+    },
+    {
+      "id": 2,
+      "nome": "Milho",
+      "preco": 2
+    },
+    {
+      "id": 3,
+      "nome": "Refri",
+      "preco": 4
+    }
+  ],
+  "pedidos": [
+    {
+      "numero": 100,
+      "itens": [
+        {
+          "nome": "Pipoca",
+          "preco": 3,
+          "qtd": 1,
+          "obs": ""
+        }
+      ],
+      "obs": "",
+      "status": "processando",
+      "criadoEm": 1793147017682
+    }
+  ],
+  "mudancas": 1
+}
