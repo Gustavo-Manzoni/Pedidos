@@ -4,17 +4,52 @@
     {
       "id": 1,
       "nome": "Pipoca",
-      "preco": 3
+      "preco": 6
     },
     {
       "id": 2,
-      "nome": "Milho",
-      "preco": 2
+      "nome": "Refri",
+      "preco": 4
     },
     {
       "id": 3,
-      "nome": "Refri",
-      "preco": 4
+      "nome": "Cachorro-Quente",
+      "preco": 8
+    },
+    {
+      "id": 4,
+      "nome": "Mini Hamburguer",
+      "preco": 7
+    },
+    {
+      "id": 5,
+      "nome": "Bolo de pote",
+      "preco": 6
+    },
+    {
+      "id": 6,
+      "nome": "Combo Cachorro-Quente + Refri",
+      "preco": 11
+    },
+    {
+      "id": 7,
+      "nome": "Combo Mini H + Refri",
+      "preco": 10
+    },
+    {
+      "id": 8,
+      "nome": "Batata Frita",
+      "preco": 7
+    },
+    {
+      "id": 9,
+      "nome": "Combo Batata + Refri",
+      "preco": 10
+    },
+    {
+      "id": 10,
+      "nome": "Torta",
+      "preco": 10
     }
   ],
   "pedidos": [
