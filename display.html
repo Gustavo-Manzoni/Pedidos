@@ -10,12 +10,12 @@ html,body{margin:0;height:100%}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#111;color:#fff;overflow:hidden;cursor:default}
 .topo{height:11vh;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,4.5vh,60px);font-weight:800;letter-spacing:.05em;background:#000}
 .cols{display:grid;grid-template-columns:1fr 1fr;height:89vh}
-.col{padding:2vh 2vw;overflow:hidden;border-right:4px solid #000}
+.col{padding:2vh 2vw;overflow:hidden;display:flex;flex-direction:column;min-height:0;border-right:4px solid #000}
 .col h2{margin:0 0 2vh;text-align:center;font-size:clamp(22px,5vh,64px);padding-bottom:1.5vh;border-bottom:4px solid currentColor}
 .proc{background:#1b1b1b;color:#ffa94d}
 .pron{background:#0b2a14;color:#69db7c}
-.lista{display:flex;flex-wrap:wrap;gap:1.5vh 1.5vw;justify-content:center;align-content:flex-start}
-.chip{font-size:clamp(32px,8vh,120px);font-weight:900;line-height:1;padding:.12em .3em;border-radius:.2em;min-width:2.4em;text-align:center}
+.lista{flex:1;min-height:0;overflow:hidden;--fs:8vh;display:flex;flex-wrap:wrap;gap:1.5vh 1.5vw;justify-content:center;align-content:flex-start}
+.chip{font-size:var(--fs);max-width:100%;overflow-wrap:anywhere;font-weight:900;line-height:1;padding:.12em .3em;border-radius:.2em;min-width:2.4em;text-align:center}
 .proc .chip{background:#2c2c2c;color:#ffd8a8}
 .pron .chip{background:#2b8a3e;color:#fff}
 .chip.novo{animation:pisca 1s ease-in-out 6}
@@ -59,6 +59,19 @@ function beep() {
 
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
 
+// reduz o tamanho dos nomes até todos caberem na coluna
+function ajustar(el) {
+  var fs = Math.min(window.innerHeight * 0.08, 120);
+  el.style.setProperty('--fs', fs + 'px');
+  while (fs > 10 && (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1)) {
+    fs = Math.floor(fs * 0.93);
+    el.style.setProperty('--fs', fs + 'px');
+  }
+}
+
+function ajustarTudo() { ajustar($('proc')); ajustar($('pron')); }
+window.addEventListener('resize', ajustarTudo);
+
 function render() {
   var ativos = estado.pedidos.slice().sort(function (a, b) { return a.numero - b.numero; });
   var proc = ativos.filter(function (p) { return p.status === 'processando'; });
@@ -77,6 +90,7 @@ function render() {
     return '<div class="chip' + (novos.indexOf(p.numero) !== -1 ? ' novo' : '') + '">' + esc(p.nome || p.numero) + '</div>';
   }).join('') || '<div class="vazio">Nenhum pedido pronto</div>';
 
+  ajustarTudo();
   if (novos.length) beep();
 }
 
