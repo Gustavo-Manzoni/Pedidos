@@ -138,7 +138,7 @@ body.tc #conexao{color:#e5e5e7}
 .bloco{background:#141415;border-radius:20px;padding:22px 24px;margin-bottom:16px;border:1px solid #232326}
 .bloco h2{margin:0 0 12px;font-size:24px;font-weight:700;padding-left:14px;line-height:1.1;border-left:4px solid #ff8a2a}
 .ed{display:flex;gap:10px;margin-bottom:10px;align-items:center}
-.ed input{height:52px;border:0;border-radius:12px;padding:0 14px;font-size:19px;min-width:0;background:#1d1d1f;color:#f2f2f2;outline:0}
+.ed input{direction:ltr;unicode-bidi:plaintext;height:52px;border:0;border-radius:12px;padding:0 14px;font-size:19px;min-width:0;background:#1d1d1f;color:#f2f2f2;outline:0}
 .ed input:focus{box-shadow:0 0 0 2px #ff8a2a}
 .ed input::placeholder{color:#7d7d82}
 .ed .edn{flex:1}.ed .edp{width:120px;text-align:right}
@@ -178,7 +178,7 @@ body.tc #conexao{color:#e5e5e7}
   <div class="painel">
     <div class="ptit"><svg viewBox="0 0 24 24"><path d="M3 4h2.5l2.2 10.5h10.3L20 8H6.2"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg><h2>Pedido atual</h2></div>
     <div id="bannerEdicao"><span id="txtEdicao"></span><button onclick="cancelarEdicao()">Cancelar edição</button></div>
-    <input id="nomePessoa" maxlength="30" placeholder="Nome da pessoa" autocomplete="off" style="width:100%;padding:12px;font-size:18px;font-weight:700;border-radius:10px;border:2px solid #ccc;margin:0 0 8px;box-sizing:border-box">
+    <input id="nomePessoa" type="text" dir="ltr" maxlength="30" placeholder="Nome da pessoa" autocomplete="off" autocorrect="off" spellcheck="false" style="width:100%;padding:12px;font-size:18px;font-weight:700;border-radius:10px;border:2px solid #ccc;margin:0 0 8px;box-sizing:border-box">
     <div id="linhas"></div>
     <div class="rodape">
       <div class="obsl"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Observação do pedido <span>(ex: tudo sem sal)</span></div>
@@ -209,7 +209,7 @@ body.tc #conexao{color:#e5e5e7}
     <div class="bloco">
       <h2>Adicionar produto</h2>
       <div class="ed">
-        <input class="edn" id="novoNome" placeholder="Nome do produto">
+        <input class="edn" id="novoNome" type="text" dir="ltr" placeholder="Nome do produto" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false">
         <span class="pre">R$</span>
         <input class="edp" id="novoPreco" inputmode="decimal" placeholder="0,00">
         <button class="b ok" style="flex:none" onclick="adicionarProduto()">+ Adicionar</button>
